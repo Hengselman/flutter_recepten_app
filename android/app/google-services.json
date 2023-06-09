@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "793391574076",
+    "project_id": "iiatimd-devin",
+    "storage_bucket": "iiatimd-devin.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:793391574076:android:8b346b9eb29e443a46a739",
+        "android_client_info": {
+          "package_name": "com.example.flutter_recepten_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "793391574076-u7p1ro6rs3h0k9cmqn9d1mpa2vabeh75.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCVn63ruWFJGx8467FrNxC5gjMdJV3iXHo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "793391574076-u7p1ro6rs3h0k9cmqn9d1mpa2vabeh75.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "793391574076-7i0pc9ntk3bg1j07l771j8les25u06nv.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.flutterReceptenApp"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
