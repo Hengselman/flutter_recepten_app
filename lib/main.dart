@@ -39,7 +39,7 @@ class MainApp extends StatelessWidget {
           } else if (snapshot.hasError) {
             return Center(child: Text('Er is iets fout gegaan.'));
           } else if (snapshot.hasData) {
-            return HomePage2();
+            return MyHomePage();
           } else {
             return AuthPage();
           }
