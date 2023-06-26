@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -18,7 +19,9 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
     'Vegan',
     'Lunch-meal',
     'Category 3',
-    'Category 4'
+    'Category 4',
+    'Category 5',
+    'Category 6'
   ]; // Replace with your actual category list
   List<String> _steps = [];
   File? _imageFile;
@@ -157,6 +160,33 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
                     );
                   }).toList(),
                 ),
+                Wrap(
+                  spacing: 8.0,
+                  children: _selectedCategories.map((category) {
+                    return GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _selectedCategories.remove(category);
+                        });
+                      },
+                      child: Container(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 12.0, vertical: 8.0),
+                        decoration: BoxDecoration(
+                          color: _getCategoryColor(category),
+                          borderRadius: BorderRadius.circular(16.0),
+                        ),
+                        child: Text(
+                          category,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
                 SizedBox(height: 8.0),
                 GestureDetector(
                   onTap: _selectImage,
@@ -179,10 +209,6 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
                   onPressed: _selectImage,
                   child: Text('Upload foto'),
                 ),
-                SizedBox(height: 16.0),
-                _imageFile != null
-                    ? Image.file(_imageFile!)
-                    : Placeholder(), // Show selected image or placeholder
                 SizedBox(height: 16.0),
                 Text('Stappen:'),
                 ListView.builder(
