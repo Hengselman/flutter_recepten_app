@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_recepten_app/add_recipe.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class MyHomePage extends StatefulWidget {
   @override
@@ -115,6 +116,22 @@ class HomePage2 extends State<MyHomePage> {
                   // You can use onChanged, onSubmitted, or a search button
                 ),
               ),
+            ),
+
+            // Add box for random or popular recipe here
+            // Show picture of food and make it clickable.
+
+            SizedBox(height: 20),
+            ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                minimumSize: Size.fromHeight(50),
+              ),
+              icon: Icon(Icons.arrow_back, size: 32),
+              label: Text(
+                'Uitloggen',
+                style: TextStyle(fontSize: 24),
+              ),
+              onPressed: () => FirebaseAuth.instance.signOut(),
             ),
             // Rest of your screen content
           ],

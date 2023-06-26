@@ -49,6 +49,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '793391574076',
     projectId: 'iiatimd-devin',
     authDomain: 'iiatimd-devin.firebaseapp.com',
+    databaseURL: 'https://iiatimd-devin-default-rtdb.europe-west1.firebasedatabase.app',
     storageBucket: 'iiatimd-devin.appspot.com',
   );
 
@@ -57,6 +58,7 @@ class DefaultFirebaseOptions {
     appId: '1:793391574076:android:8b346b9eb29e443a46a739',
     messagingSenderId: '793391574076',
     projectId: 'iiatimd-devin',
+    databaseURL: 'https://iiatimd-devin-default-rtdb.europe-west1.firebasedatabase.app',
     storageBucket: 'iiatimd-devin.appspot.com',
   );
 
@@ -65,6 +67,7 @@ class DefaultFirebaseOptions {
     appId: '1:793391574076:ios:76cee9c30ce40fd546a739',
     messagingSenderId: '793391574076',
     projectId: 'iiatimd-devin',
+    databaseURL: 'https://iiatimd-devin-default-rtdb.europe-west1.firebasedatabase.app',
     storageBucket: 'iiatimd-devin.appspot.com',
     iosClientId: '793391574076-7i0pc9ntk3bg1j07l771j8les25u06nv.apps.googleusercontent.com',
     iosBundleId: 'com.example.flutterReceptenApp',
@@ -75,6 +78,7 @@ class DefaultFirebaseOptions {
     appId: '1:793391574076:ios:76cee9c30ce40fd546a739',
     messagingSenderId: '793391574076',
     projectId: 'iiatimd-devin',
+    databaseURL: 'https://iiatimd-devin-default-rtdb.europe-west1.firebasedatabase.app',
     storageBucket: 'iiatimd-devin.appspot.com',
     iosClientId: '793391574076-7i0pc9ntk3bg1j07l771j8les25u06nv.apps.googleusercontent.com',
     iosBundleId: 'com.example.flutterReceptenApp',

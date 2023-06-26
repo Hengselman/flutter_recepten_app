@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:uuid/uuid.dart';
 
 class AddRecipeScreen extends StatefulWidget {
   @override
@@ -35,12 +36,22 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
     }
   }
 
-  Future<void> _uploadImage(String recipeId) async {
-    if (_imageFile != null) {
-      final storageRef =
+  String generateUniqueID() {
+    var uuid = Uuid();
+    return uuid.v4();
+  }
+
+  Future<String> _uploadImage(String recipeId) async {
+    if (_selectedImage != null) {
+      Reference storageRef =
           FirebaseStorage.instance.ref().child('recipe_images/$recipeId.jpg');
-      await storageRef.putFile(_imageFile!);
+      UploadTask uploadTask = storageRef.putFile(_selectedImage!);
+      TaskSnapshot storageSnapshot = await uploadTask.whenComplete(() {});
+
+      String imageUrl = await storageSnapshot.ref.getDownloadURL();
+      return imageUrl;
     }
+    return '';
   }
 
   void _saveRecipe() async {
@@ -52,18 +63,19 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
       final recipeId = recipeRef.key;
 
       // Upload the image to Firebase Storage
-      await _uploadImage(recipeId!);
+      String imageUrl = await _uploadImage(recipeId!);
 
       // Create the recipe data object
       final recipeData = {
         'name': _recipeName,
+        'imageUrl': imageUrl,
         'categories': _selectedCategories,
         'steps': _steps,
         // Add more fields as needed
       };
 
       // Save the recipe data to the database
-      await recipeRef.set(recipeData);
+      await recipeRef.set(recipeData); // De boosdoener van de code
 
       // Navigate back to the previous screen
       Navigator.pop(context);

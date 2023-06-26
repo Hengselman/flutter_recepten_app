@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "793391574076",
+    "firebase_url": "https://iiatimd-devin-default-rtdb.europe-west1.firebasedatabase.app",
     "project_id": "iiatimd-devin",
     "storage_bucket": "iiatimd-devin.appspot.com"
   },
