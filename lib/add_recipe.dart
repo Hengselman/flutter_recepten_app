@@ -1,12 +1,19 @@
+import 'dart:async';
 import 'dart:io';
-import 'package:flutter/foundation.dart';
+
 import 'package:flutter/material.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:uuid/uuid.dart';
 
+import 'show_categories.dart';
+
 class AddRecipeScreen extends StatefulWidget {
+  final List<Category>? categories;
+
+  AddRecipeScreen({required this.categories});
+
   @override
   _AddRecipeScreenState createState() => _AddRecipeScreenState();
 }
@@ -15,17 +22,21 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
   final _formKey = GlobalKey<FormState>();
   String? _recipeName;
   List<String> _selectedCategories = [];
-  List<String> _allCategories = [
-    'Vegan',
-    'Lunch-meal',
-    'Category 3',
-    'Category 4',
-    'Category 5',
-    'Category 6'
-  ]; // Replace with your actual category list
+  List<Category> _allCategories = [];
   List<String> _steps = [];
   File? _imageFile;
   File? _selectedImage;
+
+  Color _getCategoryColor(String category) {
+    switch (category.toLowerCase()) {
+      case 'vegan':
+        return Colors.green;
+      case 'lunch-meal':
+        return Colors.orange;
+      default:
+        return Colors.blue;
+    }
+  }
 
   Future<void> _selectImage() async {
     // Implement image selection logic
@@ -85,17 +96,6 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
     }
   }
 
-  Color _getCategoryColor(String category) {
-    switch (category.toLowerCase()) {
-      case 'vegan':
-        return Colors.green;
-      case 'lunch-meal':
-        return Colors.orange;
-      default:
-        return Colors.blue;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -125,20 +125,23 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
                   'Categories',
                   style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
                 ),
-                Wrap(
-                  spacing: 8.0,
-                  children: _allCategories.map((category) {
+                ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: _allCategories.length,
+                  itemBuilder: (context, index) {
+                    final category = _allCategories[index];
                     final bool isSelected =
-                        _selectedCategories.contains(category);
-                    final Color categoryColor = _getCategoryColor(category);
+                        _selectedCategories.contains(category.name);
+                    final Color categoryColor =
+                        _getCategoryColor(category.name);
 
                     return GestureDetector(
                       onTap: () {
                         setState(() {
                           if (isSelected) {
-                            _selectedCategories.remove(category);
+                            _selectedCategories.remove(category.name);
                           } else {
-                            _selectedCategories.add(category);
+                            _selectedCategories.add(category.name);
                           }
                         });
                       },
@@ -150,7 +153,7 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
                           borderRadius: BorderRadius.circular(16.0),
                         ),
                         child: Text(
-                          category,
+                          category.name,
                           style: TextStyle(
                             color: isSelected ? Colors.white : Colors.black,
                             fontWeight: FontWeight.bold,
@@ -158,7 +161,7 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
                         ),
                       ),
                     );
-                  }).toList(),
+                  },
                 ),
                 Wrap(
                   spacing: 8.0,

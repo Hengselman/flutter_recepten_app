@@ -3,11 +3,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_recepten_app/add_recipe.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'show_categories.dart';
+import 'add_recipe.dart';
 
 class MyHomePage extends StatefulWidget {
   @override
-  HomePage2 createState() => HomePage2();
+  HomePageState createState() => HomePageState();
 }
 
 enum SearchState {
@@ -15,7 +17,28 @@ enum SearchState {
   visible,
 }
 
-class HomePage2 extends State<MyHomePage> {
+class HomePageState extends State<MyHomePage> {
+  final DatabaseReference _databaseReference = FirebaseDatabase.instance.ref();
+
+  Future<List<Category>> _loadCategories() async {
+    final categoriesSnapshot =
+        await _databaseReference.child('categories').once();
+    final dynamic data = categoriesSnapshot.snapshot.value;
+
+    if (data is List) {
+      final List<Category> loadedCategories = data.map((categoryData) {
+        return Category(
+          name: categoryData['name'],
+          imageUrl: categoryData['imageUrl'],
+        );
+      }).toList();
+
+      return loadedCategories;
+    }
+
+    return [];
+  }
+
   double iconSize = 20.0;
   SearchState searchState = SearchState.hidden;
 
@@ -84,8 +107,8 @@ class HomePage2 extends State<MyHomePage> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) =>
-                                        ShowCategoriesScreen()),
+                                  builder: (context) => ShowCategoriesScreen(),
+                                ),
                               );
                             },
                           ),
@@ -96,7 +119,23 @@ class HomePage2 extends State<MyHomePage> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => AddRecipeScreen()),
+                                  builder: (context) =>
+                                      FutureBuilder<List<Category>>(
+                                    future: _loadCategories(),
+                                    builder: (context, snapshot) {
+                                      if (snapshot.connectionState ==
+                                          ConnectionState.waiting) {
+                                        return CircularProgressIndicator();
+                                      } else if (snapshot.hasError) {
+                                        return Text('Error: ${snapshot.error}');
+                                      } else {
+                                        final categories = snapshot.data;
+                                        return AddRecipeScreen(
+                                            categories: categories);
+                                      }
+                                    },
+                                  ),
+                                ),
                               );
                             },
                             child: Container(

@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'add_recipe.dart';
+import 'category_recipe_listing.dart';
 
 class Category {
   final String name;
   final String imageUrl;
 
-  Category({required this.name, required this.imageUrl});
+  Category({required this.name, this.imageUrl = ''});
 }
 
 class ShowCategoriesScreen extends StatefulWidget {
@@ -61,8 +62,14 @@ class _ShowCategoriesScreenState extends State<ShowCategoriesScreen> {
         itemBuilder: (context, index) {
           return GestureDetector(
             onTap: () {
-              // Handle category selection
-              // Navigate to category details page or perform other actions
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => CategoryRecipeListingScreen(
+                    categoryName: categories[index].name,
+                  ),
+                ),
+              );
             },
             child: Card(
               child: Column(
