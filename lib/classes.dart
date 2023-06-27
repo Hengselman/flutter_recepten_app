@@ -8,6 +8,15 @@ class Category {
 class Recipe {
   final String name;
   final String imageUrl;
+  final List<String>? categories;
+  final List<String>? ingredients;
+  final List<String>? steps;
 
-  Recipe({required this.name, this.imageUrl = ''});
+  Recipe({
+    required this.name,
+    this.imageUrl = '',
+    this.categories = const [],
+    this.ingredients = const [],
+    this.steps = const [],
+  });
 }

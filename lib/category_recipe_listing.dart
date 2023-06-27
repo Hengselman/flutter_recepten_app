@@ -31,12 +31,20 @@ class _CategoryRecipeListingScreenState
     if (data is Map) {
       final List<Recipe> loadedRecipes = [];
       data.forEach((recipeId, recipeData) {
-        final List<dynamic> categories = recipeData['categories'] ?? [];
+        final categories =
+            (recipeData['categories'] as List<dynamic>).cast<String>();
+        final List<String> ingredients =
+            (recipeData['ingredients'] as List<dynamic>).cast<String>();
+        final List<String> steps =
+            (recipeData['steps'] as List<dynamic>).cast<String>();
 
         if (categories.contains(widget.categoryName)) {
           final recipe = Recipe(
             name: recipeData['name'],
             imageUrl: recipeData['imageUrl'],
+            categories: categories,
+            ingredients: ingredients,
+            steps: steps,
           );
           loadedRecipes.add(recipe);
         }
