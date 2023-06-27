@@ -1,12 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
-
-class Recipe {
-  final String name;
-  final String imageUrl;
-
-  Recipe({required this.name, this.imageUrl = ''});
-}
+import 'recipe_info.dart';
+import 'classes.dart';
 
 class CategoryRecipeListingScreen extends StatefulWidget {
   final String categoryName;
@@ -70,6 +65,15 @@ class _CategoryRecipeListingScreenState
               fit: BoxFit.cover,
             ),
             title: Text(recipes[index].name),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      RecipeInfoScreen(recipe: recipes[index]),
+                ),
+              );
+            },
           );
         },
       ),

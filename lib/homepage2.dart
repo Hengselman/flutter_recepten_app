@@ -4,8 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_recepten_app/add_recipe.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'classes.dart';
+
 import 'show_categories.dart';
-import 'add_recipe.dart';
 
 class MyHomePage extends StatefulWidget {
   @override

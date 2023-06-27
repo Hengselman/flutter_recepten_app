@@ -1,14 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
-import 'add_recipe.dart';
+import 'classes.dart';
 import 'category_recipe_listing.dart';
-
-class Category {
-  final String name;
-  final String imageUrl;
-
-  Category({required this.name, this.imageUrl = ''});
-}
 
 class ShowCategoriesScreen extends StatefulWidget {
   @override

@@ -6,8 +6,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:uuid/uuid.dart';
-
-import 'show_categories.dart';
+import 'classes.dart';
 
 class AddRecipeScreen extends StatefulWidget {
   final List<Category>? categories;
