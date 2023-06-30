@@ -23,6 +23,8 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
   List<String> _selectedCategories = [];
   List<Category> _allCategories = [];
   List<String> _steps = [];
+  List<String> _ingredients = [];
+  String _currentIngredient = '';
   File? _imageFile;
   File? _selectedImage;
 
@@ -84,6 +86,7 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
         'imageUrl': imageUrl,
         'categories': _selectedCategories,
         'steps': _steps,
+        'ingredients': _ingredients,
         // Add more fields as needed
       };
 
@@ -210,6 +213,43 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
                 ElevatedButton(
                   onPressed: _selectImage,
                   child: Text('Upload foto'),
+                ),
+                SizedBox(height: 16.0),
+                Text('Ingredients'),
+                ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: _ingredients.length,
+                  itemBuilder: (context, index) {
+                    final ingredient = _ingredients[index];
+                    return ListTile(
+                      title: Text(ingredient),
+                    );
+                  },
+                ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextFormField(
+                        decoration: InputDecoration(labelText: 'Ingredient'),
+                        onChanged: (value) {
+                          setState(() {
+                            _currentIngredient = value;
+                          });
+                        },
+                      ),
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        if (_currentIngredient.isNotEmpty) {
+                          setState(() {
+                            _ingredients.add(_currentIngredient);
+                            _currentIngredient = '';
+                          });
+                        }
+                      },
+                      child: Text('Add ingredient'),
+                    ),
+                  ],
                 ),
                 SizedBox(height: 16.0),
                 Text('Stappen:'),

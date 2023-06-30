@@ -10,6 +10,7 @@ import 'classes.dart';
 
 import 'show_categories.dart';
 import 'recipe_info.dart';
+import 'favorites.dart';
 
 class MyHomePage extends StatefulWidget {
   final List<Recipe> recipes;
@@ -154,8 +155,12 @@ class HomePageState extends State<MyHomePage> {
                           child: IconButton(
                             icon: Icon(Icons.favorite),
                             onPressed: () {
-                              // Functionality for the favorites button
-                              // Navigate to the favorites page
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => FavoritesScreen(),
+                                ),
+                              );
                             },
                           ),
                         ),

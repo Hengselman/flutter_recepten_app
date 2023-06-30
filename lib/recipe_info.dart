@@ -188,10 +188,16 @@ class _RecipeInfoScreenState extends State<RecipeInfoScreen> {
                         currentStepIndex, // Pass the current step index
                   ),
                 ),
-              );
+              ).then((value) {
+                // Update the current step index when returning from the steps screen
+                setState(() {
+                  currentStepIndex = value ?? 0;
+                });
+              });
             },
             child: Icon(Icons.arrow_right),
             backgroundColor: Colors.blue,
+            elevation: 0.0,
           ),
         ],
       ),
@@ -271,12 +277,14 @@ class _RecipeStepScreenState extends State<RecipeStepScreen> {
               child: FloatingActionButton(
                 onPressed: navigateToPreviousStep,
                 child: Icon(Icons.arrow_back),
+                elevation: 0.0,
               ),
             ),
           if (currentStepIndex < (steps?.length ?? 0) - 1)
             FloatingActionButton(
               onPressed: navigateToNextStep,
               child: Icon(Icons.arrow_forward),
+              elevation: 0.0,
             ),
           if (currentStepIndex == (steps?.length ?? 0) - 1)
             FloatingActionButton(
@@ -286,6 +294,7 @@ class _RecipeStepScreenState extends State<RecipeStepScreen> {
               },
               backgroundColor: Colors.green,
               child: Icon(Icons.check, color: Colors.white),
+              elevation: 0.0,
             ),
         ],
       ),
