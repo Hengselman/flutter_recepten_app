@@ -103,38 +103,31 @@ class _RecipeInfoScreenState extends State<RecipeInfoScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Expanded(
+                  flex: 2,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Ingredients', // Replace with actual ingredients logic
+                        'Ingredients',
                         style: TextStyle(fontSize: 18),
                       ),
                       SizedBox(height: 8),
-                      Container(
-                        color: Colors.grey, // Placeholder color for ingredients
-                        child: Center(
-                          child: Text(
-                            'Ingredients', // Replace with actual ingredients logic
-                            style: TextStyle(fontSize: 18),
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 8),
-                      Container(
-                        color: Colors.grey, // Placeholder color for ingredients
-                        child: Center(
-                          child: Text(
-                            'Ingredients', // Replace with actual ingredients logic
-                            style: TextStyle(fontSize: 18),
-                          ),
-                        ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: widget.recipe.ingredients?.map((ingredient) {
+                              return Text(
+                                ingredient,
+                                style: TextStyle(fontSize: 18),
+                              );
+                            }).toList() ??
+                            [],
                       ),
                     ],
                   ),
                 ),
                 SizedBox(width: 16),
                 Expanded(
+                  flex: 1, // Adjust the flex value for the Free block
                   child: Container(
                     color: Colors.grey, // Placeholder color for free block
                     child: Center(

@@ -6,6 +6,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:uuid/uuid.dart';
+
 import 'classes.dart';
 
 class AddRecipeScreen extends StatefulWidget {
@@ -25,7 +26,6 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
   List<String> _steps = [];
   List<String> _ingredients = [];
   String _currentIngredient = '';
-  File? _imageFile;
   File? _selectedImage;
 
   Color _getCategoryColor(String category) {
@@ -100,211 +100,229 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Add Recipe'),
-      ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.all(16.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              children: [
-                TextFormField(
-                  decoration: InputDecoration(labelText: 'Naam van gerecht'),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Vul de naam van het gerecht in.';
-                    }
-                    return null;
-                  },
-                  onSaved: (value) {
-                    _recipeName = value;
-                  },
-                ),
-                Text(
-                  'Categories',
-                  style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
-                ),
-                ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: _allCategories.length,
-                  itemBuilder: (context, index) {
-                    final category = _allCategories[index];
-                    final bool isSelected =
-                        _selectedCategories.contains(category.name);
-                    final Color categoryColor =
-                        _getCategoryColor(category.name);
+    final deviceWidth = MediaQuery.of(context).size.width;
 
-                    return GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          if (isSelected) {
-                            _selectedCategories.remove(category.name);
-                          } else {
-                            _selectedCategories.add(category.name);
-                          }
-                        });
-                      },
-                      child: Container(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: 12.0, vertical: 8.0),
-                        decoration: BoxDecoration(
-                          color: isSelected ? categoryColor : Colors.grey[300],
-                          borderRadius: BorderRadius.circular(16.0),
-                        ),
-                        child: Text(
-                          category.name,
-                          style: TextStyle(
-                            color: isSelected ? Colors.white : Colors.black,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-                Wrap(
-                  spacing: 8.0,
-                  children: _selectedCategories.map((category) {
-                    return GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          _selectedCategories.remove(category);
-                        });
-                      },
-                      child: Container(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: 12.0, vertical: 8.0),
-                        decoration: BoxDecoration(
-                          color: _getCategoryColor(category),
-                          borderRadius: BorderRadius.circular(16.0),
-                        ),
-                        child: Text(
-                          category,
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    );
-                  }).toList(),
-                ),
-                SizedBox(height: 8.0),
-                GestureDetector(
-                  onTap: _selectImage,
-                  child: Container(
-                    width: 120.0,
-                    height: 120.0,
-                    decoration: BoxDecoration(
-                      color: Colors.grey[300],
-                      borderRadius: BorderRadius.circular(16.0),
-                    ),
-                    child: _selectedImage != null
-                        ? Image.file(
-                            _selectedImage!,
-                            fit: BoxFit.cover,
-                          )
-                        : Icon(Icons.image, size: 48.0, color: Colors.grey),
+    if (deviceWidth < 400) {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('Add Recipe'),
+        ),
+        body: const Center(
+          child: Text(
+            'Sorry, you can only add recipes via phone.',
+            textAlign: TextAlign.center,
+          ),
+        ),
+      );
+    } else {
+      return Scaffold(
+        appBar: AppBar(
+          title: Text('Add Recipe'),
+        ),
+        body: SingleChildScrollView(
+          child: Padding(
+            padding: EdgeInsets.all(16.0),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                children: [
+                  TextFormField(
+                    decoration: InputDecoration(labelText: 'Name of recipe'),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Enter name of recipe.';
+                      }
+                      return null;
+                    },
+                    onSaved: (value) {
+                      _recipeName = value;
+                    },
                   ),
-                ),
-                ElevatedButton(
-                  onPressed: _selectImage,
-                  child: Text('Upload foto'),
-                ),
-                SizedBox(height: 16.0),
-                Text('Ingredients'),
-                ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: _ingredients.length,
-                  itemBuilder: (context, index) {
-                    final ingredient = _ingredients[index];
-                    return ListTile(
-                      title: Text(ingredient),
-                    );
-                  },
-                ),
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextFormField(
-                        decoration: InputDecoration(labelText: 'Ingredient'),
-                        onChanged: (value) {
+                  Text(
+                    'Categories',
+                    style:
+                        TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
+                  ),
+                  ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: _allCategories.length,
+                    itemBuilder: (context, index) {
+                      final category = _allCategories[index];
+                      final bool isSelected =
+                          _selectedCategories.contains(category.name);
+                      final Color categoryColor =
+                          _getCategoryColor(category.name);
+
+                      return GestureDetector(
+                        onTap: () {
                           setState(() {
-                            _currentIngredient = value;
+                            if (isSelected) {
+                              _selectedCategories.remove(category.name);
+                            } else {
+                              _selectedCategories.add(category.name);
+                            }
                           });
                         },
-                      ),
-                    ),
-                    ElevatedButton(
-                      onPressed: () {
-                        if (_currentIngredient.isNotEmpty) {
-                          setState(() {
-                            _ingredients.add(_currentIngredient);
-                            _currentIngredient = '';
-                          });
-                        }
-                      },
-                      child: Text('Add ingredient'),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 16.0),
-                Text('Stappen:'),
-                ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: _steps.length,
-                  itemBuilder: (context, index) {
-                    return ListTile(
-                      title: Text(_steps[index]),
-                    );
-                  },
-                ),
-                SizedBox(height: 16.0),
-                ElevatedButton(
-                  onPressed: () {
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        String newStep = '';
-                        return AlertDialog(
-                          title: Text('Voeg extra stap toe'),
-                          content: TextFormField(
-                            onChanged: (value) {
-                              newStep = value;
-                            },
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 12.0, vertical: 8.0),
+                          decoration: BoxDecoration(
+                            color:
+                                isSelected ? categoryColor : Colors.grey[300],
+                            borderRadius: BorderRadius.circular(16.0),
                           ),
-                          actions: [
-                            ElevatedButton(
-                              onPressed: () {
-                                if (newStep.isNotEmpty) {
-                                  setState(() {
-                                    _steps.add(newStep);
-                                  });
-                                  Navigator.pop(context);
-                                }
-                              },
-                              child: Text('Toevoegen'),
+                          child: Text(
+                            category.name,
+                            style: TextStyle(
+                              color: isSelected ? Colors.white : Colors.black,
+                              fontWeight: FontWeight.bold,
                             ),
-                          ],
-                        );
-                      },
-                    );
-                  },
-                  child: Text('Voeg stap toe'),
-                ),
-                SizedBox(height: 16.0),
-                ElevatedButton(
-                  onPressed: _saveRecipe,
-                  child: Text('Sla recept op!'),
-                ),
-              ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                  Wrap(
+                    spacing: 8.0,
+                    children: _selectedCategories.map((category) {
+                      return GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _selectedCategories.remove(category);
+                          });
+                        },
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 12.0, vertical: 8.0),
+                          decoration: BoxDecoration(
+                            color: _getCategoryColor(category),
+                            borderRadius: BorderRadius.circular(16.0),
+                          ),
+                          child: Text(
+                            category,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                  SizedBox(height: 8.0),
+                  GestureDetector(
+                    onTap: _selectImage,
+                    child: Container(
+                      width: 120.0,
+                      height: 120.0,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[300],
+                        borderRadius: BorderRadius.circular(16.0),
+                      ),
+                      child: _selectedImage != null
+                          ? Image.file(
+                              _selectedImage!,
+                              fit: BoxFit.cover,
+                            )
+                          : Icon(Icons.image, size: 48.0, color: Colors.grey),
+                    ),
+                  ),
+                  ElevatedButton(
+                    onPressed: _selectImage,
+                    child: Text('Upload image'),
+                  ),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextFormField(
+                          decoration: InputDecoration(labelText: 'Ingredient'),
+                          onChanged: (value) {
+                            setState(() {
+                              _currentIngredient = value;
+                            });
+                          },
+                        ),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          if (_currentIngredient.isNotEmpty) {
+                            setState(() {
+                              _ingredients.add(_currentIngredient);
+                              _currentIngredient = '';
+                            });
+                          }
+                        },
+                        child: Text('Add ingredient'),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 16.0),
+                  Text('Ingredients'),
+                  ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: _ingredients.length,
+                    itemBuilder: (context, index) {
+                      final ingredient = _ingredients[index];
+                      return ListTile(
+                        title: Text(ingredient),
+                      );
+                    },
+                  ),
+                  SizedBox(height: 16.0),
+                  Text('Steps:'),
+                  ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: _steps.length,
+                    itemBuilder: (context, index) {
+                      return ListTile(
+                        title: Text(_steps[index]),
+                      );
+                    },
+                  ),
+                  SizedBox(height: 16.0),
+                  ElevatedButton(
+                    onPressed: () {
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          String newStep = '';
+                          return AlertDialog(
+                            title: Text('Add instruction'),
+                            content: TextFormField(
+                              onChanged: (value) {
+                                newStep = value;
+                              },
+                            ),
+                            actions: [
+                              ElevatedButton(
+                                onPressed: () {
+                                  if (newStep.isNotEmpty) {
+                                    setState(() {
+                                      _steps.add(newStep);
+                                    });
+                                    Navigator.pop(context);
+                                  }
+                                },
+                                child: Text('Add'),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    },
+                    child: Text('Add instruction'),
+                  ),
+                  SizedBox(height: 16.0),
+                  ElevatedButton(
+                    onPressed: _saveRecipe,
+                    child: Text('Save recipe!'),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
-      ),
-    );
+      );
+    }
   }
 }

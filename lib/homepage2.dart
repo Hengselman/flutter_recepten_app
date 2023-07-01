@@ -104,217 +104,447 @@ class HomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    bool isPhone = MediaQuery.of(context).size.shortestSide < 600;
+    final deviceWidth = MediaQuery.of(context).size.width;
 
-    return GestureDetector(
-      onTap: () {
-        if (searchState == SearchState.visible) {
-          setState(() {
-            searchState = SearchState.hidden;
-          });
-        }
-      },
-      child: Scaffold(
-        body: SafeArea(
-          child: Stack(
-            children: [
-              Column(
-                children: [
-                  AnimatedCrossFade(
-                    duration: Duration(milliseconds: 300),
-                    crossFadeState: searchState == SearchState.hidden
-                        ? CrossFadeState.showFirst
-                        : CrossFadeState.showSecond,
-                    firstChild: Row(
-                      children: [
-                        Expanded(
-                          child: GestureDetector(
-                            onTapDown: (_) {
-                              setState(() {
-                                iconSize = 0.0;
-                                searchState = SearchState.visible;
-                              });
-                            },
-                            onTapUp: (_) {
-                              setState(() {
-                                iconSize = 20.0;
-                              });
-                            },
-                            child: AnimatedContainer(
-                              duration: Duration(milliseconds: 200),
-                              width: iconSize,
-                              height: iconSize,
-                              child: Transform.scale(
-                                scale: iconSize / 20.0,
-                                child: Icon(Icons.search),
-                              ),
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          child: IconButton(
-                            icon: Icon(Icons.favorite),
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => FavoritesScreen(),
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-                        Expanded(
-                          child: IconButton(
-                            icon: Icon(Icons.category),
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => ShowCategoriesScreen(),
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      FutureBuilder<List<Category>>(
-                                    future: _loadCategories(),
-                                    builder: (context, snapshot) {
-                                      if (snapshot.connectionState ==
-                                          ConnectionState.waiting) {
-                                        return CircularProgressIndicator();
-                                      } else if (snapshot.hasError) {
-                                        return Text('Error: ${snapshot.error}');
-                                      } else {
-                                        final categories = snapshot.data;
-                                        return AddRecipeScreen(
-                                            categories: categories);
-                                      }
-                                    },
+    if (deviceWidth < 400) {
+      return GestureDetector(
+        onTap: () {
+          if (searchState == SearchState.visible) {
+            setState(() {
+              searchState = SearchState.hidden;
+            });
+          }
+        },
+        child: Scaffold(
+          body: SafeArea(
+            child: Stack(
+              children: [
+                Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      AnimatedCrossFade(
+                        duration: Duration(milliseconds: 300),
+                        crossFadeState: searchState == SearchState.hidden
+                            ? CrossFadeState.showFirst
+                            : CrossFadeState.showSecond,
+                        firstChild: Row(
+                          children: [
+                            Expanded(
+                              child: GestureDetector(
+                                onTapDown: (_) {
+                                  setState(() {
+                                    iconSize = 0.0;
+                                    searchState = SearchState.visible;
+                                  });
+                                },
+                                onTapUp: (_) {
+                                  setState(() {
+                                    iconSize = 20.0;
+                                  });
+                                },
+                                child: AnimatedContainer(
+                                  duration: Duration(milliseconds: 200),
+                                  width: iconSize,
+                                  height: iconSize,
+                                  child: Transform.scale(
+                                    scale: iconSize / 20.0,
+                                    child: Icon(Icons.search),
                                   ),
                                 ),
-                              );
-                            },
-                            child: Container(
-                              child: Center(
-                                child: Icon(
-                                  Icons.add_circle_rounded,
-                                  size: iconSize,
-                                ),
                               ),
                             ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    secondChild: Container(
-                      height: 48.0,
-                      color: Colors.grey[200],
-                      padding: EdgeInsets.symmetric(horizontal: 16.0),
-                      child: TextField(
-                        decoration: InputDecoration(
-                          hintText: 'Enter your search',
-                          border: InputBorder.none,
-                        ),
-                        onChanged: (value) {
-                          filterRecipes(value);
-                        },
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 20),
-
-                  // Popular recipe section
-                  Text(
-                    'Popular recipe:',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
-                  if (filteredRecipes.isEmpty)
-                    GestureDetector(
-                      onTap: () async {
-                        if (randomRecipe != null) {
-                          // Navigate to the recipe info screen of the random recipe
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  RecipeInfoScreen(recipe: randomRecipe!),
+                            Expanded(
+                              child: IconButton(
+                                icon: Icon(Icons.favorite),
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => FavoritesScreen(),
+                                    ),
+                                  );
+                                },
+                              ),
                             ),
-                          );
-                        }
-                      },
-                      child: Container(
-                        padding: EdgeInsets.all(16),
-                        child: Column(
-                          children: [
-                            Image.network(
-                              randomRecipe?.imageUrl ?? '',
-                              width: 200,
-                              height: 200,
-                              fit: BoxFit.cover,
+                            Expanded(
+                              child: IconButton(
+                                icon: Icon(Icons.category),
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          ShowCategoriesScreen(),
+                                    ),
+                                  );
+                                },
+                              ),
                             ),
-                            SizedBox(height: 8),
-                            Text(
-                              randomRecipe?.name ?? '',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
+                            Expanded(
+                              child: GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          FutureBuilder<List<Category>>(
+                                        future: _loadCategories(),
+                                        builder: (context, snapshot) {
+                                          if (snapshot.connectionState ==
+                                              ConnectionState.waiting) {
+                                            return CircularProgressIndicator();
+                                          } else if (snapshot.hasError) {
+                                            return Text(
+                                                'Error: ${snapshot.error}');
+                                          } else {
+                                            final categories = snapshot.data;
+                                            return AddRecipeScreen(
+                                                categories: categories);
+                                          }
+                                        },
+                                      ),
+                                    ),
+                                  );
+                                },
+                                child: Container(
+                                  child: Center(
+                                    child: Icon(
+                                      Icons.add_circle_rounded,
+                                      size: iconSize,
+                                    ),
+                                  ),
+                                ),
                               ),
                             ),
                           ],
                         ),
+                        secondChild: Container(
+                          height: 48.0,
+                          color: Colors.grey[200],
+                          padding: EdgeInsets.symmetric(horizontal: 8.0),
+                          child: TextField(
+                            decoration: InputDecoration(
+                              hintText: 'Enter your search',
+                              hintStyle: TextStyle(fontSize: 12),
+                              border: InputBorder.none,
+                            ),
+                            onChanged: (value) {
+                              filterRecipes(value);
+                            },
+                          ),
+                        ),
                       ),
-                    ),
-                  if (filteredRecipes.isNotEmpty)
-                    Expanded(
-                      child: ListView.builder(
-                        itemCount: filteredRecipes.length,
-                        itemBuilder: (context, index) {
-                          final recipe = filteredRecipes[index];
-                          return GestureDetector(
-                            onTap: () {
+                      SizedBox(height: 5),
+                      // Popular recipe section
+                      Text(
+                        'Popular recipe:',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      if (filteredRecipes.isEmpty)
+                        GestureDetector(
+                          onTap: () async {
+                            if (randomRecipe != null) {
+                              // Navigate to the recipe info screen of the random recipe
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) =>
-                                      RecipeInfoScreen(recipe: recipe),
+                                      RecipeInfoScreen(recipe: randomRecipe!),
+                                ),
+                              );
+                            }
+                          },
+                          child: Container(
+                            padding: EdgeInsets.all(8),
+                            child: Column(
+                              children: [
+                                Image.network(
+                                  randomRecipe?.imageUrl ?? '',
+                                  width: 100,
+                                  height: 100,
+                                  fit: BoxFit.cover,
+                                ),
+                                SizedBox(height: 2),
+                                Text(
+                                  randomRecipe?.name ?? '',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      if (filteredRecipes.isNotEmpty)
+                        Expanded(
+                          child: ListView.builder(
+                            itemCount: filteredRecipes.length,
+                            itemBuilder: (context, index) {
+                              final recipe = filteredRecipes[index];
+                              return GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          RecipeInfoScreen(recipe: recipe),
+                                    ),
+                                  );
+                                },
+                                child: ListTile(
+                                  title: Text(recipe.name),
+                                  leading: Image.network(recipe.imageUrl),
                                 ),
                               );
                             },
-                            child: ListTile(
-                              title: Text(recipe.name),
-                              leading: Image.network(recipe.imageUrl),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                  SizedBox(height: 20),
-                ],
-              ),
-              Positioned(
-                bottom: 16,
-                right: 16,
-                child: FloatingActionButton(
-                  onPressed: () {
-                    setState(() {
-                      randomRecipe = _generateRandomRecipe(widget.recipes);
-                    });
-                  },
-                  child: Icon(Icons.refresh),
+                          ),
+                        ),
+                      SizedBox(height: 20),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+                Positioned(
+                  bottom: 4,
+                  right: 4,
+                  child: IconButton(
+                    icon: Icon(Icons.logout),
+                    onPressed: () {
+                      FirebaseAuth.instance.signOut().then((value) {
+                        Navigator.of(context)
+                            .popUntil((route) => route.isFirst);
+                      }).catchError((error) {
+                        print('Error signing out: $error');
+                      });
+                    },
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
-      ),
-    );
+      );
+    } else {
+      return GestureDetector(
+        onTap: () {
+          if (searchState == SearchState.visible) {
+            setState(() {
+              searchState = SearchState.hidden;
+            });
+          }
+        },
+        child: Scaffold(
+          body: SafeArea(
+            child: Stack(
+              children: [
+                Column(
+                  children: [
+                    AnimatedCrossFade(
+                      duration: Duration(milliseconds: 300),
+                      crossFadeState: searchState == SearchState.hidden
+                          ? CrossFadeState.showFirst
+                          : CrossFadeState.showSecond,
+                      firstChild: Row(
+                        children: [
+                          Expanded(
+                            child: GestureDetector(
+                              onTapDown: (_) {
+                                setState(() {
+                                  iconSize = 0.0;
+                                  searchState = SearchState.visible;
+                                });
+                              },
+                              onTapUp: (_) {
+                                setState(() {
+                                  iconSize = 20.0;
+                                });
+                              },
+                              child: AnimatedContainer(
+                                duration: Duration(milliseconds: 200),
+                                width: iconSize,
+                                height: iconSize,
+                                child: Transform.scale(
+                                  scale: iconSize / 20.0,
+                                  child: Icon(Icons.search),
+                                ),
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            child: IconButton(
+                              icon: Icon(Icons.favorite),
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => FavoritesScreen(),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                          Expanded(
+                            child: IconButton(
+                              icon: Icon(Icons.category),
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        ShowCategoriesScreen(),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        FutureBuilder<List<Category>>(
+                                      future: _loadCategories(),
+                                      builder: (context, snapshot) {
+                                        if (snapshot.connectionState ==
+                                            ConnectionState.waiting) {
+                                          return CircularProgressIndicator();
+                                        } else if (snapshot.hasError) {
+                                          return Text(
+                                              'Error: ${snapshot.error}');
+                                        } else {
+                                          final categories = snapshot.data;
+                                          return AddRecipeScreen(
+                                              categories: categories);
+                                        }
+                                      },
+                                    ),
+                                  ),
+                                );
+                              },
+                              child: Container(
+                                child: Center(
+                                  child: Icon(
+                                    Icons.add_circle_rounded,
+                                    size: iconSize,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      secondChild: Container(
+                        height: 48.0,
+                        color: Colors.grey[200],
+                        padding: EdgeInsets.symmetric(horizontal: 16.0),
+                        child: TextField(
+                          decoration: InputDecoration(
+                            hintText: 'Enter your search',
+                            border: InputBorder.none,
+                          ),
+                          onChanged: (value) {
+                            filterRecipes(value);
+                          },
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 20),
+
+                    // Popular recipe section
+                    Text(
+                      'Popular recipe:',
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    ),
+                    if (filteredRecipes.isEmpty)
+                      GestureDetector(
+                        onTap: () async {
+                          if (randomRecipe != null) {
+                            // Navigate to the recipe info screen of the random recipe
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    RecipeInfoScreen(recipe: randomRecipe!),
+                              ),
+                            );
+                          }
+                        },
+                        child: Container(
+                          padding: EdgeInsets.all(16),
+                          child: Column(
+                            children: [
+                              Image.network(
+                                randomRecipe?.imageUrl ?? '',
+                                width: 250,
+                                height: 250,
+                                fit: BoxFit.cover,
+                              ),
+                              SizedBox(height: 8),
+                              Text(
+                                randomRecipe?.name ?? '',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    if (filteredRecipes.isNotEmpty)
+                      Expanded(
+                        child: ListView.builder(
+                          itemCount: filteredRecipes.length,
+                          itemBuilder: (context, index) {
+                            final recipe = filteredRecipes[index];
+                            return GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        RecipeInfoScreen(recipe: recipe),
+                                  ),
+                                );
+                              },
+                              child: ListTile(
+                                title: Text(recipe.name),
+                                leading: Image.network(recipe.imageUrl),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    SizedBox(height: 20),
+                  ],
+                ),
+                Positioned(
+                  bottom: 16,
+                  right: 16,
+                  child: IconButton(
+                    icon: Icon(Icons.logout),
+                    onPressed: () {
+                      FirebaseAuth.instance.signOut().then((value) {
+                        Navigator.of(context)
+                            .popUntil((route) => route.isFirst);
+                      }).catchError((error) {
+                        print('Error signing out: $error');
+                      });
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
   }
 }
