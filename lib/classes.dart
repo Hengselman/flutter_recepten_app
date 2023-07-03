@@ -6,6 +6,7 @@ class Category {
 }
 
 class Recipe {
+  final String Id;
   final String name;
   final String imageUrl;
   final List<String>? categories;
@@ -13,6 +14,7 @@ class Recipe {
   final List<String>? steps;
 
   Recipe({
+    required this.Id,
     required this.name,
     this.imageUrl = '',
     this.categories = const [],

@@ -2,7 +2,6 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-import 'main.dart';
 import 'utils.dart';
 
 class LoginWidget extends StatefulWidget {
@@ -94,11 +93,6 @@ class _LoginWidgetState extends State<LoginWidget> {
       );
 
   Future signIn() async {
-    //showDialog(
-    //  context: context,
-    //  barrierDismissible: false,
-    //  builder: (context) => Center(child: CircularProgressIndicator()));
-
     try {
       await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: emailController.text.trim(),
@@ -110,8 +104,6 @@ class _LoginWidgetState extends State<LoginWidget> {
       Utils utils = Utils();
       utils.showSnackBar(e.message);
     }
-
-    // navigatorKey.currentState!.popUntil((route)) => route.isFirst;
   }
 
   Future guest() async {

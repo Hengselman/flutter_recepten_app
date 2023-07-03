@@ -60,6 +60,7 @@ class HomePageState extends State<MyHomePage> {
       final List<Recipe> loadedRecipes = [];
       data.forEach((recipeId, recipeData) {
         final recipe = Recipe(
+          Id: recipeData['Id'],
           name: recipeData['name'],
           imageUrl: recipeData['imageUrl'],
           categories: List<String>.from(recipeData['categories'] ?? []),
@@ -106,6 +107,10 @@ class HomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     final deviceWidth = MediaQuery.of(context).size.width;
 
+    final smallDevice = deviceWidth < 400;
+    final titelFontSize = smallDevice ? 12.0 : 18.0;
+    final titleTextStyle = TextStyle(fontSize: titelFontSize);
+
     if (deviceWidth < 400) {
       return GestureDetector(
         onTap: () {
@@ -116,215 +121,223 @@ class HomePageState extends State<MyHomePage> {
           }
         },
         child: Scaffold(
-          body: SafeArea(
-            child: Stack(
-              children: [
-                Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      AnimatedCrossFade(
-                        duration: Duration(milliseconds: 300),
-                        crossFadeState: searchState == SearchState.hidden
-                            ? CrossFadeState.showFirst
-                            : CrossFadeState.showSecond,
-                        firstChild: Row(
-                          children: [
-                            Expanded(
-                              child: GestureDetector(
-                                onTapDown: (_) {
-                                  setState(() {
-                                    iconSize = 0.0;
-                                    searchState = SearchState.visible;
-                                  });
-                                },
-                                onTapUp: (_) {
-                                  setState(() {
-                                    iconSize = 20.0;
-                                  });
-                                },
-                                child: AnimatedContainer(
-                                  duration: Duration(milliseconds: 200),
-                                  width: iconSize,
-                                  height: iconSize,
-                                  child: Transform.scale(
-                                    scale: iconSize / 20.0,
-                                    child: Icon(Icons.search),
+          body: Stack(
+            children: [
+              Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    AnimatedCrossFade(
+                      duration: Duration(milliseconds: 300),
+                      crossFadeState: searchState == SearchState.hidden
+                          ? CrossFadeState.showFirst
+                          : CrossFadeState.showSecond,
+                      firstChild: Row(
+                        children: [
+                          Expanded(
+                            child: GestureDetector(
+                              onTapDown: (_) {
+                                setState(() {
+                                  iconSize = 0.0;
+                                  searchState = SearchState.visible;
+                                });
+                              },
+                              onTapUp: (_) {
+                                setState(() {
+                                  iconSize = 20.0;
+                                });
+                              },
+                              child: AnimatedContainer(
+                                duration: Duration(milliseconds: 200),
+                                width: iconSize,
+                                height: iconSize,
+                                child: Transform.scale(
+                                  scale: iconSize / 20.0,
+                                  child: Icon(Icons.search),
+                                ),
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            child: IconButton(
+                              icon: Icon(Icons.favorite),
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => FavoritesScreen(),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                          Expanded(
+                            child: IconButton(
+                              icon: Icon(Icons.category),
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        ShowCategoriesScreen(),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        FutureBuilder<List<Category>>(
+                                      future: _loadCategories(),
+                                      builder: (context, snapshot) {
+                                        if (snapshot.connectionState ==
+                                            ConnectionState.waiting) {
+                                          return CircularProgressIndicator();
+                                        } else if (snapshot.hasError) {
+                                          return Text(
+                                              'Error: ${snapshot.error}');
+                                        } else {
+                                          final categories = snapshot.data;
+                                          return AddRecipeScreen(
+                                              categories: categories);
+                                        }
+                                      },
+                                    ),
+                                  ),
+                                );
+                              },
+                              child: Container(
+                                child: Center(
+                                  child: Icon(
+                                    Icons.add_circle_rounded,
+                                    size: iconSize,
                                   ),
                                 ),
                               ),
                             ),
-                            Expanded(
-                              child: IconButton(
-                                icon: Icon(Icons.favorite),
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => FavoritesScreen(),
-                                    ),
-                                  );
-                                },
-                              ),
-                            ),
-                            Expanded(
-                              child: IconButton(
-                                icon: Icon(Icons.category),
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          ShowCategoriesScreen(),
-                                    ),
-                                  );
-                                },
-                              ),
-                            ),
-                            Expanded(
-                              child: GestureDetector(
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          FutureBuilder<List<Category>>(
-                                        future: _loadCategories(),
-                                        builder: (context, snapshot) {
-                                          if (snapshot.connectionState ==
-                                              ConnectionState.waiting) {
-                                            return CircularProgressIndicator();
-                                          } else if (snapshot.hasError) {
-                                            return Text(
-                                                'Error: ${snapshot.error}');
-                                          } else {
-                                            final categories = snapshot.data;
-                                            return AddRecipeScreen(
-                                                categories: categories);
-                                          }
-                                        },
-                                      ),
-                                    ),
-                                  );
-                                },
-                                child: Container(
-                                  child: Center(
-                                    child: Icon(
-                                      Icons.add_circle_rounded,
-                                      size: iconSize,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
+                          ),
+                        ],
+                      ),
+                      secondChild: Container(
+                        height: 48.0,
+                        color: Colors.grey[200],
+                        padding: EdgeInsets.symmetric(horizontal: 8.0),
+                        child: TextField(
+                          decoration: InputDecoration(
+                            hintText: 'Enter your search',
+                            hintStyle: TextStyle(fontSize: 12),
+                            border: InputBorder.none,
+                          ),
+                          onChanged: (value) {
+                            filterRecipes(value);
+                          },
                         ),
-                        secondChild: Container(
-                          height: 48.0,
-                          color: Colors.grey[200],
-                          padding: EdgeInsets.symmetric(horizontal: 8.0),
-                          child: TextField(
-                            decoration: InputDecoration(
-                              hintText: 'Enter your search',
-                              hintStyle: TextStyle(fontSize: 12),
-                              border: InputBorder.none,
-                            ),
-                            onChanged: (value) {
-                              filterRecipes(value);
-                            },
+                      ),
+                    ),
+                    SizedBox(height: 5),
+                    // Popular recipe section
+                    Text(
+                      'Popular recipe:',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    if (searchState == SearchState.hidden)
+                      GestureDetector(
+                        onTap: () async {
+                          if (randomRecipe != null) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    RecipeInfoScreen(recipe: randomRecipe!),
+                              ),
+                            );
+                          }
+                        },
+                        child: Container(
+                          padding: EdgeInsets.all(4),
+                          child: Column(
+                            children: [
+                              Image.network(
+                                randomRecipe?.imageUrl ?? '',
+                                width: 100,
+                                height: 100,
+                                fit: BoxFit.contain,
+                              ),
+                              SizedBox(height: 2),
+                              Text(
+                                randomRecipe?.name ?? '',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ),
-                      SizedBox(height: 5),
-                      // Popular recipe section
+                    if (searchState == SearchState.visible &&
+                        filteredRecipes.isEmpty)
                       Text(
-                        'Popular recipe:',
+                        'No recipes found',
                         style: TextStyle(
                           fontSize: 12,
-                          fontWeight: FontWeight.bold,
                         ),
                       ),
-                      if (filteredRecipes.isEmpty)
-                        GestureDetector(
-                          onTap: () async {
-                            if (randomRecipe != null) {
-                              // Navigate to the recipe info screen of the random recipe
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      RecipeInfoScreen(recipe: randomRecipe!),
-                                ),
-                              );
-                            }
-                          },
-                          child: Container(
-                            padding: EdgeInsets.all(8),
-                            child: Column(
-                              children: [
-                                Image.network(
-                                  randomRecipe?.imageUrl ?? '',
-                                  width: 100,
-                                  height: 100,
-                                  fit: BoxFit.cover,
-                                ),
-                                SizedBox(height: 2),
-                                Text(
-                                  randomRecipe?.name ?? '',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.bold,
+                    if (searchState == SearchState.visible &&
+                        filteredRecipes.isNotEmpty)
+                      Expanded(
+                        child: ListView.builder(
+                          itemCount: filteredRecipes.length,
+                          itemBuilder: (context, index) {
+                            final recipe = filteredRecipes[index];
+                            return GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        RecipeInfoScreen(recipe: recipe),
                                   ),
+                                );
+                              },
+                              child: ListTile(
+                                title: Text(
+                                  recipe.name,
+                                  style: titleTextStyle,
                                 ),
-                              ],
-                            ),
-                          ),
+                                leading: Image.network(recipe.imageUrl),
+                              ),
+                            );
+                          },
                         ),
-                      if (filteredRecipes.isNotEmpty)
-                        Expanded(
-                          child: ListView.builder(
-                            itemCount: filteredRecipes.length,
-                            itemBuilder: (context, index) {
-                              final recipe = filteredRecipes[index];
-                              return GestureDetector(
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          RecipeInfoScreen(recipe: recipe),
-                                    ),
-                                  );
-                                },
-                                child: ListTile(
-                                  title: Text(recipe.name),
-                                  leading: Image.network(recipe.imageUrl),
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-                      SizedBox(height: 20),
-                    ],
-                  ),
+                      ),
+                    SizedBox(height: 20),
+                  ],
                 ),
-                Positioned(
-                  bottom: 4,
-                  right: 4,
-                  child: IconButton(
-                    icon: Icon(Icons.logout),
-                    onPressed: () {
-                      FirebaseAuth.instance.signOut().then((value) {
-                        Navigator.of(context)
-                            .popUntil((route) => route.isFirst);
-                      }).catchError((error) {
-                        print('Error signing out: $error');
-                      });
-                    },
-                  ),
+              ),
+              Positioned(
+                bottom: 4,
+                right: 4,
+                child: IconButton(
+                  icon: Icon(Icons.logout),
+                  onPressed: () {
+                    FirebaseAuth.instance.signOut().then((value) {
+                      Navigator.of(context).popUntil((route) => route.isFirst);
+                    }).catchError((error) {
+                      print('Error signing out: $error');
+                    });
+                  },
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       );
@@ -457,16 +470,10 @@ class HomePageState extends State<MyHomePage> {
                     SizedBox(height: 20),
 
                     // Popular recipe section
-                    Text(
-                      'Popular recipe:',
-                      style:
-                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                    ),
-                    if (filteredRecipes.isEmpty)
+                    if (searchState == SearchState.hidden)
                       GestureDetector(
                         onTap: () async {
                           if (randomRecipe != null) {
-                            // Navigate to the recipe info screen of the random recipe
                             Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -498,7 +505,16 @@ class HomePageState extends State<MyHomePage> {
                           ),
                         ),
                       ),
-                    if (filteredRecipes.isNotEmpty)
+                    if (searchState == SearchState.visible &&
+                        filteredRecipes.isEmpty)
+                      Text(
+                        'No recipes found',
+                        style: TextStyle(
+                          fontSize: 18,
+                        ),
+                      ),
+                    if (searchState == SearchState.visible &&
+                        filteredRecipes.isNotEmpty)
                       Expanded(
                         child: ListView.builder(
                           itemCount: filteredRecipes.length,
@@ -516,7 +532,10 @@ class HomePageState extends State<MyHomePage> {
                               },
                               child: ListTile(
                                 title: Text(recipe.name),
-                                leading: Image.network(recipe.imageUrl),
+                                leading: Container(
+                                  width: 150.0,
+                                  child: Image.network(recipe.imageUrl),
+                                ),
                               ),
                             );
                           },

@@ -16,10 +16,9 @@ class RecipeInfoScreen extends StatefulWidget {
 class _RecipeInfoScreenState extends State<RecipeInfoScreen> {
   bool isFavorite = false;
   late String userUid;
-  final DatabaseReference usersRef =
-      FirebaseDatabase.instance.ref().child('Users');
   final DatabaseReference favoritesRef =
       FirebaseDatabase.instance.ref().child('favorites');
+
   // Get the current step index
   int currentStepIndex = 0;
 
@@ -40,15 +39,18 @@ class _RecipeInfoScreenState extends State<RecipeInfoScreen> {
   }
 
   void checkFavorite() {
-    favoritesRef.child(userUid).child(widget.recipe.name).onValue.listen(
-        (event) {
-      DataSnapshot snapshot = event.snapshot;
-      setState(() {
-        isFavorite = snapshot.value != null;
-      });
-    }, onError: (error) {
-      print('Error checking if recipe is in favorites: $error');
-    });
+    favoritesRef.child(userUid).child(widget.recipe.Id).onValue.listen(
+      (event) {
+        DataSnapshot snapshot = event.snapshot;
+
+        setState(() {
+          isFavorite = snapshot.value != null;
+        });
+      },
+      onError: (error) {
+        print('Error checking if recipe is in favorites: $error');
+      },
+    );
   }
 
   void toggleFavorite() {
@@ -59,15 +61,15 @@ class _RecipeInfoScreenState extends State<RecipeInfoScreen> {
     });
 
     if (isFavorite) {
-      // Add the recipe to the user's favorites
-      favoritesRef.child(userUid).child(widget.recipe.name).set(true).then((_) {
+      // Add the recipe ID to the user's favorites
+      favoritesRef.child(userUid).child(widget.recipe.Id).set(true).then((_) {
         print('Recipe added to favorites');
       }).catchError((error) {
         print('Error adding recipe to favorites: $error');
       });
     } else {
-      // Remove the recipe from the user's favorites
-      favoritesRef.child(userUid).child(widget.recipe.name).remove().then((_) {
+      // Remove the recipe ID from the user's favorites
+      favoritesRef.child(userUid).child(widget.recipe.Id).remove().then((_) {
         print('Recipe removed from favorites');
       }).catchError((error) {
         print('Error removing recipe from favorites: $error');
@@ -77,124 +79,237 @@ class _RecipeInfoScreenState extends State<RecipeInfoScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.recipe.name),
-      ),
-      body: Container(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              width: double.infinity,
-              height: 200,
-              child: Image.network(
-                widget.recipe.imageUrl,
-                fit: BoxFit.cover,
-              ),
-            ),
-            SizedBox(height: 16),
-            Text(
-              widget.recipe.name,
-              style: TextStyle(fontSize: 24),
-            ),
-            SizedBox(height: 8),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    final deviceWidth = MediaQuery.of(context).size.width;
+
+    if (deviceWidth < 400) {
+      return Scaffold(
+        appBar: PreferredSize(
+          preferredSize: Size.fromHeight(35),
+          child: AppBar(
+            title: Text(widget.recipe.name),
+            titleTextStyle: TextStyle(fontSize: 18),
+          ),
+        ),
+        body: Padding(
+          padding: EdgeInsets.all(4.0),
+          child: Container(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  flex: 2,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Ingredients',
-                        style: TextStyle(fontSize: 18),
-                      ),
-                      SizedBox(height: 8),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: widget.recipe.ingredients?.map((ingredient) {
-                              return Text(
-                                ingredient,
-                                style: TextStyle(fontSize: 18),
-                              );
-                            }).toList() ??
-                            [],
-                      ),
-                    ],
+                Container(
+                  width: 100,
+                  height: 50,
+                  child: Image.network(
+                    widget.recipe.imageUrl,
+                    fit: BoxFit.fitWidth,
                   ),
                 ),
-                SizedBox(width: 16),
-                Expanded(
-                  flex: 1, // Adjust the flex value for the Free block
-                  child: Container(
-                    color: Colors.grey, // Placeholder color for free block
-                    child: Center(
-                      child: Text(
-                        'Free Block', // Replace with actual content
-                        style: TextStyle(fontSize: 24),
+                SizedBox(height: 16),
+                Text(
+                  widget.recipe.name,
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 4),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      flex: 2,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Ingredients',
+                            style: TextStyle(
+                                fontSize: 8,
+                                decoration: TextDecoration.underline),
+                          ),
+                          SizedBox(height: 4),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children:
+                                widget.recipe.ingredients?.map((ingredient) {
+                                      return Text(
+                                        ingredient,
+                                        style: TextStyle(fontSize: 8),
+                                      );
+                                    }).toList() ??
+                                    [],
+                          ),
+                        ],
                       ),
                     ),
-                  ),
+                  ],
                 ),
               ],
             ),
-            SizedBox(height: 16),
-            Expanded(
-              child: Container(
-                color: Colors.grey, // Placeholder color for free block
-                child: Center(
-                  child: Text(
-                    'Free Block', // Replace with actual content
-                    style: TextStyle(fontSize: 24),
-                  ),
-                ),
+          ),
+        ),
+        floatingActionButton: Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            FloatingActionButton(
+              onPressed: toggleFavorite,
+              mini: true,
+              child: Icon(
+                isFavorite ? Icons.favorite : Icons.favorite_border,
+                color: Colors.white,
               ),
+              backgroundColor: Colors.pink,
+              heroTag: null, // Remove the hero tag
+            ),
+            SizedBox(height: 2),
+            FloatingActionButton(
+              mini: true,
+              onPressed: () {
+                // Navigate to the first step page
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => RecipeStepScreen(
+                      recipe: widget.recipe,
+                      currentStepIndex:
+                          currentStepIndex, // Pass the current step index
+                    ),
+                  ),
+                ).then((value) {
+                  // Update the current step index when returning from the steps screen
+                  setState(() {
+                    currentStepIndex = value ?? 0;
+                  });
+                });
+              },
+              child: Icon(Icons.arrow_right),
+              backgroundColor: Colors.blue,
+              elevation: 0.0,
             ),
           ],
         ),
-      ),
-      floatingActionButton: Column(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          FloatingActionButton(
-            onPressed: toggleFavorite,
-            child: Icon(
-              isFavorite ? Icons.favorite : Icons.favorite_border,
-              color: Colors.white,
-            ),
-            backgroundColor: Colors.pink,
-            heroTag: null, // Remove the hero tag
-          ),
-          SizedBox(height: 16),
-          FloatingActionButton(
-            onPressed: () {
-              // Navigate to the first step page
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => RecipeStepScreen(
-                    recipe: widget.recipe,
-                    currentStepIndex:
-                        currentStepIndex, // Pass the current step index
+      );
+    } else {
+      return Scaffold(
+        appBar: AppBar(
+          title: Text(widget.recipe.name),
+        ),
+        body: Container(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: double.infinity,
+                height: 200,
+                child: Image.network(
+                  widget.recipe.imageUrl,
+                  fit: BoxFit.cover,
+                ),
+              ),
+              SizedBox(height: 16),
+              Text(
+                widget.recipe.name,
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 8),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    flex: 2,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Ingredients',
+                          style: TextStyle(
+                              fontSize: 18,
+                              decoration: TextDecoration.underline),
+                        ),
+                        SizedBox(height: 8),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children:
+                              widget.recipe.ingredients?.map((ingredient) {
+                                    return Text(
+                                      ingredient,
+                                      style: TextStyle(fontSize: 18),
+                                    );
+                                  }).toList() ??
+                                  [],
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(width: 16),
+                  Expanded(
+                    flex: 1, // Adjust the flex value for the Free block
+                    child: Container(
+                      color: Colors.grey, // Placeholder color for free block
+                      child: Center(
+                        child: Text(
+                          'Free Block', // Replace with actual content
+                          style: TextStyle(fontSize: 24),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 16),
+              Expanded(
+                child: Container(
+                  color: Colors.grey, // Placeholder color for free block
+                  child: Center(
+                    child: Text(
+                      'Free Block', // Replace with actual content
+                      style: TextStyle(fontSize: 24),
+                    ),
                   ),
                 ),
-              ).then((value) {
-                // Update the current step index when returning from the steps screen
-                setState(() {
-                  currentStepIndex = value ?? 0;
-                });
-              });
-            },
-            child: Icon(Icons.arrow_right),
-            backgroundColor: Colors.blue,
-            elevation: 0.0,
+              ),
+            ],
           ),
-        ],
-      ),
-    );
+        ),
+        floatingActionButton: Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            FloatingActionButton(
+              onPressed: toggleFavorite,
+              child: Icon(
+                isFavorite ? Icons.favorite : Icons.favorite_border,
+                color: Colors.white,
+              ),
+              backgroundColor: Colors.pink,
+              heroTag: null, // Remove the hero tag
+            ),
+            SizedBox(height: 16),
+            FloatingActionButton(
+              onPressed: () {
+                // Navigate to the first step page
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => RecipeStepScreen(
+                      recipe: widget.recipe,
+                      currentStepIndex:
+                          currentStepIndex, // Pass the current step index
+                    ),
+                  ),
+                ).then((value) {
+                  // Update the current step index when returning from the steps screen
+                  setState(() {
+                    currentStepIndex = value ?? 0;
+                  });
+                });
+              },
+              child: Icon(Icons.arrow_right),
+              backgroundColor: Colors.blue,
+              elevation: 0.0,
+            ),
+          ],
+        ),
+      );
+    }
   }
 }
 
@@ -231,66 +346,141 @@ class _RecipeStepScreenState extends State<RecipeStepScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final deviceWidth = MediaQuery.of(context).size.width;
     final List<String>? steps = widget.recipe.steps;
 
-    if (currentStepIndex < 0 || currentStepIndex >= (steps?.length ?? 0)) {
+    if (deviceWidth < 400) {
+      if (currentStepIndex < 0 || currentStepIndex >= (steps?.length ?? 0)) {
+        return Scaffold(
+          appBar: PreferredSize(
+            preferredSize: Size.fromHeight(35),
+            child: AppBar(
+              title: Text(widget.recipe.name),
+              titleTextStyle: TextStyle(fontSize: 18),
+            ),
+          ),
+          body: Center(
+            child: Text('Invalid step index.'),
+          ),
+        );
+      }
+
+      String currentStep = steps?[currentStepIndex] ?? '';
+
+      return Scaffold(
+        appBar: PreferredSize(
+          preferredSize: Size.fromHeight(35),
+          child: AppBar(
+            title: Text(widget.recipe.name),
+            titleTextStyle: TextStyle(fontSize: 18),
+          ),
+        ),
+        body: Padding(
+          padding: EdgeInsets.all(4.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Text(
+                'Step ${currentStepIndex + 1}: $currentStep',
+                style: TextStyle(fontSize: 18),
+              ),
+            ],
+          ),
+        ),
+        floatingActionButton: Stack(
+          alignment: Alignment.topRight,
+          children: [
+            if (currentStepIndex > 0)
+              Positioned(
+                right: 80.0,
+                child: FloatingActionButton(
+                  onPressed: navigateToPreviousStep,
+                  mini: true,
+                  child: Icon(Icons.arrow_back),
+                  elevation: 0.0,
+                ),
+              ),
+            if (currentStepIndex < (steps?.length ?? 0) - 1)
+              FloatingActionButton(
+                onPressed: navigateToNextStep,
+                mini: true,
+                child: Icon(Icons.arrow_forward),
+                elevation: 0.0,
+              ),
+            if (currentStepIndex == (steps?.length ?? 0) - 1)
+              FloatingActionButton(
+                onPressed: () {
+                  // Return to the recipe info screen
+                  Navigator.pop(context);
+                },
+                backgroundColor: Colors.green,
+                mini: true,
+                child: Icon(Icons.check, color: Colors.white),
+                elevation: 0.0,
+              ),
+          ],
+        ),
+      );
+    } else {
+      if (currentStepIndex < 0 || currentStepIndex >= (steps?.length ?? 0)) {
+        return Scaffold(
+          appBar: AppBar(
+            title: Text(widget.recipe.name),
+          ),
+          body: Center(
+            child: Text('Invalid step index.'),
+          ),
+        );
+      }
+
+      String currentStep = steps?[currentStepIndex] ?? '';
+
       return Scaffold(
         appBar: AppBar(
           title: Text(widget.recipe.name),
         ),
         body: Center(
-          child: Text('Invalid step index.'),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                'Step ${currentStepIndex + 1}: $currentStep',
+                style: TextStyle(fontSize: 24),
+              ),
+            ],
+          ),
+        ),
+        floatingActionButton: Stack(
+          alignment: Alignment.topRight,
+          children: [
+            if (currentStepIndex > 0)
+              Positioned(
+                right: 80.0,
+                child: FloatingActionButton(
+                  onPressed: navigateToPreviousStep,
+                  child: Icon(Icons.arrow_back),
+                  elevation: 0.0,
+                ),
+              ),
+            if (currentStepIndex < (steps?.length ?? 0) - 1)
+              FloatingActionButton(
+                onPressed: navigateToNextStep,
+                child: Icon(Icons.arrow_forward),
+                elevation: 0.0,
+              ),
+            if (currentStepIndex == (steps?.length ?? 0) - 1)
+              FloatingActionButton(
+                onPressed: () {
+                  // Return to the recipe info screen
+                  Navigator.pop(context);
+                },
+                backgroundColor: Colors.green,
+                child: Icon(Icons.check, color: Colors.white),
+                elevation: 0.0,
+              ),
+          ],
         ),
       );
     }
-
-    String currentStep = steps?[currentStepIndex] ?? '';
-
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.recipe.name),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              'Step ${currentStepIndex + 1}: $currentStep',
-              style: TextStyle(fontSize: 24),
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: Stack(
-        alignment: Alignment.topRight,
-        children: [
-          if (currentStepIndex > 0)
-            Positioned(
-              right: 80.0,
-              child: FloatingActionButton(
-                onPressed: navigateToPreviousStep,
-                child: Icon(Icons.arrow_back),
-                elevation: 0.0,
-              ),
-            ),
-          if (currentStepIndex < (steps?.length ?? 0) - 1)
-            FloatingActionButton(
-              onPressed: navigateToNextStep,
-              child: Icon(Icons.arrow_forward),
-              elevation: 0.0,
-            ),
-          if (currentStepIndex == (steps?.length ?? 0) - 1)
-            FloatingActionButton(
-              onPressed: () {
-                // Return to the recipe info screen
-                Navigator.pop(context);
-              },
-              backgroundColor: Colors.green,
-              child: Icon(Icons.check, color: Colors.white),
-              elevation: 0.0,
-            ),
-        ],
-      ),
-    );
   }
 }

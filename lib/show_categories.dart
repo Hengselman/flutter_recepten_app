@@ -41,50 +41,104 @@ class _ShowCategoriesScreenState extends State<ShowCategoriesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Categories'),
-      ),
-      body: GridView.builder(
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          crossAxisSpacing: 10,
-          mainAxisSpacing: 10,
+    final deviceWidth = MediaQuery.of(context).size.width;
+
+    if (deviceWidth < 400) {
+      return Scaffold(
+        appBar: PreferredSize(
+          preferredSize: Size.fromHeight(35),
+          child: AppBar(
+            title: Text('Categories'),
+            titleTextStyle: TextStyle(fontSize: 18),
+          ),
         ),
-        itemCount: categories.length,
-        itemBuilder: (context, index) {
-          return GestureDetector(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => CategoryRecipeListingScreen(
-                    categoryName: categories[index].name,
+        body: GridView.builder(
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            crossAxisSpacing: 0,
+            mainAxisSpacing: 0,
+          ),
+          itemCount: categories.length,
+          itemBuilder: (context, index) {
+            return GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => CategoryRecipeListingScreen(
+                      categoryName: categories[index].name,
+                    ),
                   ),
+                );
+              },
+              child: Card(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Image.network(
+                      categories[index].imageUrl,
+                      width: 60,
+                      height: 60,
+                      fit: BoxFit.fill,
+                    ),
+                    SizedBox(height: 4),
+                    Text(
+                      categories[index].name,
+                      style: TextStyle(fontSize: 12),
+                    ),
+                  ],
                 ),
-              );
-            },
-            child: Card(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Image.network(
-                    categories[index].imageUrl,
-                    width: 100,
-                    height: 100,
-                    fit: BoxFit.cover,
-                  ),
-                  SizedBox(height: 8),
-                  Text(
-                    categories[index].name,
-                    style: TextStyle(fontSize: 16),
-                  ),
-                ],
               ),
-            ),
-          );
-        },
-      ),
-    );
+            );
+          },
+        ),
+      );
+    } else {
+      return Scaffold(
+        appBar: AppBar(
+          title: Text('Categories'),
+        ),
+        body: GridView.builder(
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            crossAxisSpacing: 10,
+            mainAxisSpacing: 10,
+          ),
+          itemCount: categories.length,
+          itemBuilder: (context, index) {
+            return GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => CategoryRecipeListingScreen(
+                      categoryName: categories[index].name,
+                    ),
+                  ),
+                );
+              },
+              child: Card(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Image.network(
+                      categories[index].imageUrl,
+                      width: 100,
+                      height: 100,
+                      fit: BoxFit.cover,
+                    ),
+                    SizedBox(height: 8),
+                    Text(
+                      categories[index].name,
+                      style: TextStyle(fontSize: 16),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
+      );
+    }
   }
 }

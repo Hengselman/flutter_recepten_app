@@ -40,6 +40,7 @@ class _CategoryRecipeListingScreenState
 
         if (categories.contains(widget.categoryName)) {
           final recipe = Recipe(
+            Id: recipeData['Id'],
             name: recipeData['name'],
             imageUrl: recipeData['imageUrl'],
             categories: categories,
@@ -58,33 +59,70 @@ class _CategoryRecipeListingScreenState
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.categoryName),
-      ),
-      body: ListView.builder(
-        itemCount: recipes.length,
-        itemBuilder: (context, index) {
-          return ListTile(
-            leading: Image.network(
-              recipes[index].imageUrl,
-              width: 60,
-              height: 60,
-              fit: BoxFit.cover,
-            ),
-            title: Text(recipes[index].name),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) =>
-                      RecipeInfoScreen(recipe: recipes[index]),
-                ),
-              );
-            },
-          );
-        },
-      ),
-    );
+    final deviceWidth = MediaQuery.of(context).size.width;
+
+    if (deviceWidth < 400) {
+      return Scaffold(
+        appBar: PreferredSize(
+          preferredSize: Size.fromHeight(35),
+          child: AppBar(
+            title: Text(widget.categoryName),
+            titleTextStyle: TextStyle(fontSize: 18),
+          ),
+        ),
+        body: ListView.builder(
+          itemCount: recipes.length,
+          itemBuilder: (context, index) {
+            return ListTile(
+              leading: Image.network(
+                recipes[index].imageUrl,
+                width: 60,
+                height: 60,
+                fit: BoxFit.cover,
+              ),
+              title: Text(recipes[index].name),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        RecipeInfoScreen(recipe: recipes[index]),
+                  ),
+                );
+              },
+            );
+          },
+        ),
+      );
+    } else {
+      return Scaffold(
+        appBar: AppBar(
+          title: Text(widget.categoryName),
+        ),
+        body: ListView.builder(
+          itemCount: recipes.length,
+          itemBuilder: (context, index) {
+            return ListTile(
+              leading: Image.network(
+                recipes[index].imageUrl,
+                width: 60,
+                height: 60,
+                fit: BoxFit.cover,
+              ),
+              title: Text(recipes[index].name),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        RecipeInfoScreen(recipe: recipes[index]),
+                  ),
+                );
+              },
+            );
+          },
+        ),
+      );
+    }
   }
 }

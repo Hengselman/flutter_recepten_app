@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:uuid/uuid.dart';
 
 import 'classes.dart';
 
@@ -28,6 +27,12 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
   String _currentIngredient = '';
   File? _selectedImage;
 
+  @override
+  void initState() {
+    super.initState();
+    _allCategories = widget.categories ?? [];
+  }
+
   Color _getCategoryColor(String category) {
     switch (category.toLowerCase()) {
       case 'vegan':
@@ -49,11 +54,6 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
         _selectedImage = File(pickedFile.path);
       });
     }
-  }
-
-  String generateUniqueID() {
-    var uuid = Uuid();
-    return uuid.v4();
   }
 
   Future<String> _uploadImage(String recipeId) async {
@@ -82,6 +82,7 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
 
       // Create the recipe data object
       final recipeData = {
+        'Id': recipeId,
         'name': _recipeName,
         'imageUrl': imageUrl,
         'categories': _selectedCategories,
@@ -91,7 +92,7 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
       };
 
       // Save the recipe data to the database
-      await recipeRef.set(recipeData); // De boosdoener van de code
+      await recipeRef.set(recipeData);
 
       // Navigate back to the previous screen
       Navigator.pop(context);
@@ -104,8 +105,12 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
 
     if (deviceWidth < 400) {
       return Scaffold(
-        appBar: AppBar(
-          title: const Text('Add Recipe'),
+        appBar: PreferredSize(
+          preferredSize: Size.fromHeight(35),
+          child: AppBar(
+            title: const Text('Add Recipe'),
+            titleTextStyle: TextStyle(fontSize: 18),
+          ),
         ),
         body: const Center(
           child: Text(
@@ -143,11 +148,10 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
                     style:
                         TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
                   ),
-                  ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: _allCategories.length,
-                    itemBuilder: (context, index) {
-                      final category = _allCategories[index];
+                  Wrap(
+                    spacing: 8.0,
+                    runSpacing: 8.0,
+                    children: _allCategories.map((category) {
                       final bool isSelected =
                           _selectedCategories.contains(category.name);
                       final Color categoryColor =
@@ -180,7 +184,7 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
                           ),
                         ),
                       );
-                    },
+                    }).toList(),
                   ),
                   Wrap(
                     spacing: 8.0,
@@ -257,7 +261,7 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
                     ],
                   ),
                   SizedBox(height: 16.0),
-                  Text('Ingredients'),
+                  Text('Ingredients:'),
                   ListView.builder(
                     shrinkWrap: true,
                     itemCount: _ingredients.length,

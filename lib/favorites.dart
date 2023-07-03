@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -18,19 +17,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
   @override
   void initState() {
     super.initState();
-    _checkAuthentication();
     _loadFavoriteRecipes();
-  }
-
-  Future<void> _checkAuthentication() async {
-    final User? user = _firebaseAuth.currentUser;
-    if (user == null) {
-      // User is not authenticated, navigate to login screen or handle the case appropriately
-      // Example: Navigator.pushReplacementNamed(context, '/login');
-    } else {
-      // User is authenticated, load the favorite recipes
-      await _loadFavoriteRecipes();
-    }
   }
 
   Future<void> _loadFavoriteRecipes() async {
@@ -58,6 +45,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
           final dynamic recipeData = recipeSnapshot.snapshot.value;
           if (recipeData != null) {
             final Recipe recipe = Recipe(
+              Id: recipeData['Id'] ?? '',
               name: recipeData['name'] ?? '',
               imageUrl: recipeData['imageUrl'] ?? '',
               categories: List<String>.from(recipeData['categories'] ?? []),
@@ -77,34 +65,76 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Favorites'),
-      ),
-      body: ListView.builder(
-        itemCount: favoriteRecipes.length,
-        itemBuilder: (context, index) {
-          final recipe = favoriteRecipes[index];
+    final deviceWidth = MediaQuery.of(context).size.width;
 
-          return ListTile(
-            leading: Image.network(
-              recipe.imageUrl,
-              width: 60,
-              height: 60,
-              fit: BoxFit.cover,
-            ),
-            title: Text(recipe.name),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => RecipeInfoScreen(recipe: recipe),
-                ),
-              );
-            },
-          );
-        },
-      ),
-    );
+    final smallDevice = deviceWidth < 400;
+    final titelFontSize = smallDevice ? 12.0 : 18.0;
+    final titleTextStyle = TextStyle(fontSize: titelFontSize);
+
+    if (deviceWidth < 400) {
+      return Scaffold(
+        appBar: PreferredSize(
+          preferredSize: Size.fromHeight(35),
+          child: AppBar(
+            title: Text('Favorites'),
+            titleTextStyle: TextStyle(fontSize: 18),
+          ),
+        ),
+        body: ListView.builder(
+          itemCount: favoriteRecipes.length,
+          itemBuilder: (context, index) {
+            final recipe = favoriteRecipes[index];
+
+            return ListTile(
+              leading: Image.network(
+                recipe.imageUrl,
+                width: 60,
+                height: 60,
+                fit: BoxFit.cover,
+              ),
+              title: Text(recipe.name, style: titleTextStyle),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => RecipeInfoScreen(recipe: recipe),
+                  ),
+                );
+              },
+            );
+          },
+        ),
+      );
+    } else {
+      return Scaffold(
+        appBar: AppBar(
+          title: Text('Favorites'),
+        ),
+        body: ListView.builder(
+          itemCount: favoriteRecipes.length,
+          itemBuilder: (context, index) {
+            final recipe = favoriteRecipes[index];
+
+            return ListTile(
+              leading: Image.network(
+                recipe.imageUrl,
+                width: 60,
+                height: 60,
+                fit: BoxFit.cover,
+              ),
+              title: Text(recipe.name),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => RecipeInfoScreen(recipe: recipe),
+                  ),
+                );
+              },
+            );
+          },
+        ),
+      );
+    }
   }
 }
